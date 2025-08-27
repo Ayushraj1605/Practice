@@ -2,26 +2,26 @@ import { CacheLimits, createCacheLimits } from './CacheLimits';
 import { LRUCache } from './LRUCache';
 
 function createLRUCache<K, V>(capacity: number): LRUCache<K, V> {
-  interface CacheNode<K, V> {
+  interface CacheNode {
     key: K;
     value: V;
-    prev: CacheNode<K, V> | null;
-    next: CacheNode<K, V> | null;
+    prev: CacheNode | null;
+    next: CacheNode | null;
   }
 
   const limits: CacheLimits = createCacheLimits(capacity);
-  const cache: Map<K, CacheNode<K, V>> = new Map();
-  const head: CacheNode<K, V> = { key: undefined as unknown as K, value: undefined as unknown as V, prev: null, next: null };
-  const tail: CacheNode<K, V> = { key: undefined as unknown as K, value: undefined as unknown as V, prev: null, next: null };
+  const cache: Map<K, CacheNode> = new Map();
+  const head: CacheNode = { key: undefined as unknown as K, value: undefined as unknown as V, prev: null, next: null };
+  const tail: CacheNode = { key: undefined as unknown as K, value: undefined as unknown as V, prev: null, next: null };
   head.next = tail;
   tail.prev = head;
 
-  function remove(node: CacheNode<K, V>): void {
+  function remove(node: CacheNode): void {
     node.prev!.next = node.next;
     node.next!.prev = node.prev;
   }
 
-  function add(node: CacheNode<K, V>): void {
+  function add(node: CacheNode): void {
     node.next = head.next;
     node.prev = head;
     head.next!.prev = node;
@@ -42,7 +42,7 @@ function createLRUCache<K, V>(capacity: number): LRUCache<K, V> {
       if (cache.has(key)) {
         remove(cache.get(key)!);
       }
-      const node: CacheNode<K, V> = { key, value, prev: null, next: null };
+      const node: CacheNode = { key, value, prev: null, next: null };
       add(node);
       cache.set(key, node);
       if (cache.size > limits.getMaxSize()) {
