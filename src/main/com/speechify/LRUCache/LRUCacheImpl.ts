@@ -29,14 +29,14 @@ function createLRUCache<K, V>(capacity: number): LRUCache<K, V> {
   }
 
   return {
-    get(key: K): V | -1 {
+    get(key: K): V | null {
       if (cache.has(key)) {
         const node = cache.get(key)!;
         remove(node);
         add(node);
         return node.value;
       }
-      return -1;
+      return null;
     },
     set(key: K, value: V): void {
       if (cache.has(key)) {

@@ -24,7 +24,7 @@ function createLRUCache(capacity) {
                 add(node);
                 return node.value;
             }
-            return -1;
+            return null;
         },
         set(key, value) {
             if (cache.has(key)) {
