@@ -68,5 +68,5 @@ test('should unescape XML characters in text', (t) => {
   let tree = parseSSML('<speak>&amp;&lt;&gt;&quot;&apos;</speak>');
   assert.strictEqual(tree.children[0].text, '&<>"\'');
   tree = parseSSML('<speak> &amp; &lt; &gt; &quot; &apos; </speak>');
-  assert.strictEqual(tree.children[0].text, '& < > " \' ');
+  assert.strictEqual(tree.children[0].text, ' & < > " \' ');
 });
