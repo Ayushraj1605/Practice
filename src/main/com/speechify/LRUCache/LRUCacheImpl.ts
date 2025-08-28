@@ -1,5 +1,5 @@
-import { CacheLimits, createCacheLimits } from './CacheLimits';
-import { LRUCache } from './LRUCache';
+import { CacheLimits, createCacheLimits } from './CacheLimits.js';
+import { LRUCache } from './LRUCache.js';
 
 function createLRUCache<K, V>(capacity: number): LRUCache<K, V> {
   interface CacheNode {

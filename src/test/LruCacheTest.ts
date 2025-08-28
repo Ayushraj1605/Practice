@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { lruCacheProvider } from '../main/com/speechify/LRUCache/LRUCacheProvider';
+import { lruCacheProvider } from '../main/com/speechify/LRUCache/LRUCacheProvider.js';
 
 test('should handle basic operations', (t) => {
   const cache = lruCacheProvider.create<number, string>(2);

@@ -1,4 +1,4 @@
-import { createCacheLimits } from './CacheLimits';
+import { createCacheLimits } from './CacheLimits.js';
 function createLRUCache(capacity) {
     const limits = createCacheLimits(capacity);
     const cache = new Map();

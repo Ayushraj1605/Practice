@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { parseSSML } from '../main/com/speechify/Ssml/Ssml';
+import { parseSSML } from '../main/com/speechify/Ssml/Ssml.js';
 test('should parse tag names', (t) => {
     const tree = parseSSML('');
     assert.strictEqual(tree.tag, 'speak');
