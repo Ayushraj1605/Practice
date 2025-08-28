@@ -103,14 +103,14 @@ test('should unescape XML characters in text', () => {
     assert.strictEqual(tree.children[1].text, ' JS', 'Should parse text after tag');
 });
 test('should convert SSML nodes to text', () => {
-    let tree = parseSSML('<baz></baz>');
+    let tree = parseSSML('<speak><baz></baz></speak>');
     assert.strictEqual(ssmlNodeToText(tree), '', 'Empty tag should return empty text');
-    tree = parseSSML('<baz foo="bar"></baz>');
+    tree = parseSSML('<speak><baz foo="bar"></baz></speak>');
     assert.strictEqual(ssmlNodeToText(tree), '', 'Tag with attribute should return empty text');
-    tree = parseSSML('<baz>Hello world</baz>');
+    tree = parseSSML('<speak><baz>Hello world</baz></speak>');
     assert.strictEqual(ssmlNodeToText(tree), 'Hello world', 'Tag with text should return text');
-    tree = parseSSML('<baz foo="bar">Hello world</baz>');
+    tree = parseSSML('<speak><baz foo="bar">Hello world</baz></speak>');
     assert.strictEqual(ssmlNodeToText(tree), 'Hello world', 'Tag with text and attribute should return text');
-    tree = parseSSML('<baz foo="bar">baz<p>Hello world</p>baz</baz>');
+    tree = parseSSML('<speak><baz foo="bar">baz<p>Hello world</p>baz</baz></speak>');
     assert.strictEqual(ssmlNodeToText(tree), 'bazHello worldbaz', 'Nested tag should concatenate text');
 });
