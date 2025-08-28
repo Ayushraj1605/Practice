@@ -24,6 +24,9 @@ function unescapeXML(text: string): string {
 }
 
 function parseSSML(ssml: string): SSMLNode {
+  if (ssml.trim() === '') {
+    return createSSMLNode('speak');
+  }
   // Basic validation - must be wrapped in speak tags
   if (!ssml.trim().startsWith('<speak') || !ssml.trim().endsWith('</speak>')) {
     throw new Error('Tags could not be parsed');
