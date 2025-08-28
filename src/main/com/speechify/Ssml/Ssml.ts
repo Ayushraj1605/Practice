@@ -14,6 +14,10 @@ function createSSMLNode(tag: string | null = null, text: string | null = null): 
   };
 }
 
+function unescapeXML(text: string): string {
+  return text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, '\'');
+}
+
 function parseSSML(ssml: string): SSMLNode {
   const stack: SSMLNode[] = [];
   let root: SSMLNode | null = null;
@@ -23,7 +27,7 @@ function parseSSML(ssml: string): SSMLNode {
   while (i < ssml.length) {
     if (ssml[i] === '<') {
       if (currentText.trim()) {
-        stack[stack.length - 1]?.children.push(createSSMLNode(null, currentText.trim()));
+        stack[stack.length - 1]?.children.push(createSSMLNode(null, unescapeXML(currentText.trim())));
         currentText = '';
       }
 
@@ -31,30 +35,26 @@ function parseSSML(ssml: string): SSMLNode {
       if (ssml[i] === '/') {
         i++;
         const tagEnd = ssml.indexOf('>', i);
+        if (tagEnd === -1) throw new Error('Tags could not be parsed');
         i = tagEnd + 1;
-        if (stack.length > 1) {
-          stack.pop();
-        }
+        if (stack.length > 1) stack.pop();
       } else {
         const tagEnd = ssml.indexOf('>', i);
+        if (tagEnd === -1) throw new Error('Tags could not be parsed');
         const tagContent = ssml.slice(i, tagEnd).trim();
         const [tagName, ...attrPairs] = tagContent.split(/\s+/);
+        if (!tagName) throw new Error('Tags could not be parsed');
         const node = createSSMLNode(tagName);
 
         for (const pair of attrPairs) {
           const [key, value] = pair.split('=');
-          if (value) {
-            node.attributes.set(key, value.replace(/['"]/g, ''));
-          }
+          if (!key || !value) throw new Error('Attributes could not be parsed');
+          node.attributes.set(key, value.replace(/['"]/g, ''));
         }
 
         if (!root) root = node;
-        if (stack.length > 0) {
-          stack[stack.length - 1].children.push(node);
-        }
-        if (ssml[tagEnd - 1] !== '/') {
-          stack.push(node);
-        }
+        if (stack.length > 0) stack[stack.length - 1].children.push(node);
+        if (ssml[tagEnd - 1] !== '/') stack.push(node);
         i = tagEnd + 1;
       }
     } else {
@@ -63,11 +63,14 @@ function parseSSML(ssml: string): SSMLNode {
     }
   }
 
-  if (currentText.trim() && stack.length > 0) {
-    stack[stack.length - 1].children.push(createSSMLNode(null, currentText.trim()));
+  if (currentText.trim()) {
+    stack[stack.length - 1]?.children.push(createSSMLNode(null, unescapeXML(currentText.trim())));
   }
 
-  return root || createSSMLNode('speak', null);
+  if (stack.length > 0) throw new Error('Tags could not be parsed'); // Ensure all tags closed
+
+  if (!root || root.tag !== 'speak') throw new Error('Tags could not be parsed');
+  return root;
 }
 
 function ssmlNodeToText(node: SSMLNode | null): string {
