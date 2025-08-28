@@ -16,9 +16,9 @@ function createSSMLNode(tag: string | null = null, text: string | null = null): 
 
 function unescapeXML(text: string): string {
   return text
+    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'");
 }
@@ -39,7 +39,18 @@ function parseSSML(ssml: string): SSMLNode {
     throw new Error('Tags could not be parsed');
   }
 
-  return parseElement(ssml.trim());
+  const node = parseElement(ssml.trim());
+
+  if (node.tag === 'speak' && node.children.length > 1) {
+    if (node.children[0].tag !== null) {
+      // If the first child is an element, there cannot be any other elements, or any non-whitespace text nodes.
+      const otherChildren = node.children.slice(1);
+      if (otherChildren.some(c => c.tag !== null || (c.text && c.text.trim().length > 0))) {
+        throw new Error('Tags could not be parsed');
+      }
+    }
+  }
+  return node;
 }
 
 function parseElement(input: string): SSMLNode {
@@ -212,7 +223,7 @@ function parseAttributes(attrString: string, attributes: Map<string, string>) {
 
     // Find attribute name
     const nameStart = i;
-    while (i < attrString.length && /\w/.test(attrString[i])) {
+    while (i < attrString.length && /[\w:]/.test(attrString[i])) {
       i++;
     }
     

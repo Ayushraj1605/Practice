@@ -8,9 +8,9 @@ function createSSMLNode(tag = null, text = null) {
 }
 function unescapeXML(text) {
     return text
+        .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
         .replace(/&quot;/g, '"')
         .replace(/&apos;/g, "'");
 }
@@ -28,7 +28,17 @@ function parseSSML(ssml) {
     if (afterSpeak.length > 0) {
         throw new Error('Tags could not be parsed');
     }
-    return parseElement(ssml.trim());
+    const node = parseElement(ssml.trim());
+    if (node.tag === 'speak' && node.children.length > 1) {
+        if (node.children[0].tag !== null) {
+            // If the first child is an element, there cannot be any other elements, or any non-whitespace text nodes.
+            const otherChildren = node.children.slice(1);
+            if (otherChildren.some(c => c.tag !== null || (c.text && c.text.trim().length > 0))) {
+                throw new Error('Tags could not be parsed');
+            }
+        }
+    }
+    return node;
 }
 function parseElement(input) {
     if (!input.startsWith('<') || !input.endsWith('>')) {
@@ -174,7 +184,7 @@ function parseAttributes(attrString, attributes) {
             break;
         // Find attribute name
         const nameStart = i;
-        while (i < attrString.length && /\w/.test(attrString[i])) {
+        while (i < attrString.length && /[\w:]/.test(attrString[i])) {
             i++;
         }
         if (i === nameStart) {
